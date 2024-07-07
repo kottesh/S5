@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>World Population</title>
+</head>
+<body>
+    <script>
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://restcountries.com/v3.1/all');
+        xhr.onload = function() {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                let res = JSON.parse(xhr.response);
+                let world_pop_cnt = 0;
+
+                for (item of res) {
+                    world_pop_cnt += item.population;
+                    //document.write(item.name.common + ": " + item.population + "<br>");
+                    console.log(item.name.common + ": " + item.population);
+                }
+                
+                //document.write("<br>World Population: " + world_pop_cnt);
+                console.log("World Population: " + world_pop_cnt);
+            } else {
+                xhr.onerror = function() {
+                    console.log("Error loading...");
+                }
+            }
+        }
+        xhr.send();
+    </script>
+</body>
+</html>

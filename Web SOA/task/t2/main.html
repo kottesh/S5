@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countries and Regions</title>
+</head>
+<body>
+    <script>
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://restcountries.com/v3.1/all');
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) { // check if the return status is within 200 to 299
+                let res = JSON.parse(xhr.response);
+                
+                for (item of res) {
+                    document.write(`
+                        COUNTRY: ${item.name.common}<br>
+                        REGION: ${item.region}<br>
+                        SUB-REGION: ${item.subregion}<br><br>
+                    `);
+                    //console.log("COUNTRY: " + item.name.common + " REGION: " + item.region + " SUB-REGION: " + item.subregion); 
+                }
+            } else {
+                xhr.onerror = function() {
+                    console.error("Error loading");
+                }
+            }
+        }
+        xhr.send();
+    </script>
+</body>
+</html>
