@@ -5,7 +5,8 @@
 
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <arpa/inet.h>
+
+#define BUFFER_SIZE 2048
 
 int main(int argc, char *argv[]) {
     int sock_fd = socket(AF_INET, SOCK_DGRAM, 0); // creating socket descriptor 
@@ -32,22 +33,35 @@ int main(int argc, char *argv[]) {
     recv.sin_port = htons(7774);
 
     char *msg[5] = {
-        "What I don't understand, I cannot create - Richard Feyman",
-        "To be, or not to be, that is the question. – William Shakespeare",
-        "In the middle of difficulty lies opportunity. – Albert Einstein",
-        "What we think, we become. – Buddha",
-        "Life is really simple, but we insist on making it complicated. – Confucius"
+        "TXT 1",
+        "TXT 2",
+        "TXT 3",
+        "TXT 4",
+        "TXT 5"
     };
+
+
+    char buffer[BUFFER_SIZE];
+    int recv_msg_len = 0;
 
     for (int x = 0; x < 5; x++) {
         if (sendto(sock_fd, msg[x], strlen(msg[x]), 0, (const struct sockaddr*)&recv, sizeof(recv)) < 0) {
             perror("After sendto");
             exit(EXIT_FAILURE);
         }
+
+        int addr_len = sizeof(recv);
+        recv_msg_len = recvfrom(sock_fd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&recv, (socklen_t *)&addr_len);
+        if (recv_msg_len > 0) {
+            buffer[recv_msg_len] = 0; 
+            printf("Server Response: %s", buffer);
+            memset(buffer, 0, sizeof(buffer));
+            recv_msg_len = 0;
+        }
         sleep(2);
     }
+
 
     close(sock_fd);
     return 0;
 }
-

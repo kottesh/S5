@@ -34,13 +34,18 @@ int main(int argc, char **argv) {
 
     // recvfrom() returns the number of bytes that have been read into the `buffer`
     int recvlen = 0;
-    printf("Listening on port: %d\n\n", PORT);
+    const char *recv_msg = "RECEIVED";
     while (1) {
-        recvlen = recvfrom(sock_fd, &buffer, BUF_SIZE, 0, (struct sockaddr *)&sender_addr, (socklen_t *)&sender_len);
+        recvlen = recvfrom(sock_fd, buffer, BUF_SIZE, 0, (struct sockaddr *)&sender_addr, (socklen_t *)&sender_len);
         if (recvlen > 0) {
             buffer[recvlen] = 0;
             printf("Message: %s\n", buffer);
             memset(buffer, 0, sizeof(buffer));
+            recvlen = 0;
+            if (sendto(sock_fd, recv_msg, strlen(recv_msg), 0, (const struct sockaddr*)&sender_addr, (socklen_t)sender_len) < 0) {
+                perror("After sendto");
+                exit(EXIT_FAILURE);
+            }
         }
     }
 
