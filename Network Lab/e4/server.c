@@ -5,8 +5,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <time.h>
 
-#define PORT 6969 
+#define PORT 7777 
 #define BUF_SIZE 4096
 
 void trim_newline(char *string) {
@@ -48,14 +49,14 @@ int main(int argc, char *argv[]) {
 
     char buf[BUF_SIZE];
     int n;
-    const char *msg = "RECEIVED!";
+
     for (;;) {
         conn_fd = accept(sock_fd, (struct sockaddr *)&client_addr, (socklen_t*)&client_addr_len);
         if (conn_fd == -1) {
             fprintf(stderr, "Error occured connecting to client.");
             continue;
         }
-        printf("Connected with client(%s)\n", inet_ntoa(client_addr.sin_addr));
+        printf("Connected with client(%s)\n", inet_ntoa(client_addr.sin_addr)); // extracting the ipv4 from the client addr struct.
 
         while ( (n = recv(conn_fd, buf, BUF_SIZE, 0)) > 0) {
             buf[n] = '\0';
@@ -64,9 +65,9 @@ int main(int argc, char *argv[]) {
                 printf("Disconnected from client(%s)\n", inet_ntoa(client_addr.sin_addr));
                 break;
             }
-            printf("CLIENT: %s\n", buf);
-            memset(&buf, 0, BUF_SIZE);
-            send(conn_fd, msg, strlen(msg), 0);
+            send(conn_fd, buf, strlen(buf), 0);
+            //printf("CLIENT: %s\n", buf);
+            memset(buf, 0, BUF_SIZE);
         }
         close(conn_fd);
         printf("\n");
@@ -75,3 +76,4 @@ int main(int argc, char *argv[]) {
     close(sock_fd);
     return 0;
 }
+

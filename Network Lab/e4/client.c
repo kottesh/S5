@@ -5,6 +5,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <time.h>
 
 int main(int argc, char *argv[]) {
     if (argc < 3) {
@@ -24,14 +25,26 @@ int main(int argc, char *argv[]) {
     server_addr.sin_addr.s_addr = inet_addr(argv[1]);
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons((uint16_t)atoi(argv[2]));
-
+    
+    time_t start, end;
+    struct timespec latch;
+    clock_gettime(CLOCK_MONOTONIC, &latch);
+    
+    start = latch.tv_nsec;
+    
     if (connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("Connect");
         exit(EXIT_FAILURE);
     }
+    
+    clock_gettime(CLOCK_MONOTONIC, &latch);
+    end = latch.tv_nsec;
+    
+    printf("Connection took %lu ns\n", end-start);
 
     char msg_buf[4096], recv_buf[4096];
     int recv_len = 0;
+    
 
     while (1) {
         printf("Enter a message (type 'exit' to disconnect): ");
@@ -40,6 +53,8 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
 
+        clock_gettime(CLOCK_MONOTONIC, &latch);
+        start = latch.tv_nsec;
         send(sock_fd, msg_buf, strlen(msg_buf), 0);
         msg_buf[strcspn(msg_buf, "\n")] = '\0'; // remove the terminating newline '\n' from the input string.
 
@@ -56,10 +71,14 @@ int main(int argc, char *argv[]) {
         }
 
         recv_buf[recv_len] = '\0';
-        printf("SERVER RESPONSE: %s\n", recv_buf);
-        memset(&msg_buf, 0, sizeof(msg_buf));
-        memset(&recv_buf, 0, sizeof(recv_buf));
+        printf("%s\n", recv_buf);
+        clock_gettime(CLOCK_MONOTONIC, &latch);
+        end = latch.tv_nsec;
+        printf("Echo took %lu ns\n", end-start);
+        memset(msg_buf, 0, sizeof(msg_buf));
+        memset(recv_buf, 0, sizeof(recv_buf));
     }
     close(sock_fd);
     return 0;
 }
+
