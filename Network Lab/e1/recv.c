@@ -49,6 +49,8 @@ int main(int argc, char **argv) {
         }
     }
 
+    sendto(sock_fd, buf, BUF_SIZE, 0, (struct sockaddr *)&addr, (socklen_t)sock_len);
+
     close(sock_fd);
     return 0;
 }

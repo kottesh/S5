@@ -88,3 +88,4 @@ public class Adapter {
         System.out.println("Grade: " + newStudent.getGrade());
     }
 }
+

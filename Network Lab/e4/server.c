@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    listen(sock_fd, 6);
+    listen(sock_fd, 3);
     printf("Listening on PORT: %d\n", PORT);
 
     int conn_fd;
